@@ -1,24 +1,7 @@
 import streamlit as st
 import graphviz
 
-st.title("🏆 垂直式比賽晉級圖")
 
-# 1. 建立 Digraph
-# rankdir='TB': 由上往下 (Top to Bottom)
-# splines='ortho': 使用折線 (直角線條)，看起來更像傳統樹狀圖
-dot = graphviz.Digraph(comment='Tournament Bracket', 
-                       graph_attr={'rankdir': 'BT', 'splines': 'ortho', 'nodesep': '0.8'})
-
-# 2. 設定節點樣式 (使用 record 形狀來分割比分)
-dot.attr('node', shape='record', style='filled', fillcolor='white', fontname='Arial')
-
-team_default =  {'Id':'TeamDefault', 'Name':'輪空', 'WonCount':0, 'Score':[
-        {"Point":0, "Round":0},
-        {"Point":0, "Round":0},
-        {"Point":0, "Round":0},
-        {"Point":0, "Round":0},
-        {"Point":0, "Round":0}
-        ]}
 teams = [
     {'Id':'Team1', 'Name':'輪空', 'WonCount':1, 'Score':[
         {"Point":0, "Round":0},
@@ -78,6 +61,26 @@ teams = [
         ]}
 ]
 
+
+st.title("🏆 垂直式比賽晉級圖")
+
+# 1. 建立 Digraph
+# rankdir='TB': 由上往下 (Top to Bottom)
+# splines='ortho': 使用折線 (直角線條)，看起來更像傳統樹狀圖
+dot = graphviz.Digraph(comment='Tournament Bracket', 
+                       graph_attr={'rankdir': 'BT', 'splines': 'ortho', 'nodesep': '0.8'})
+
+# 2. 設定節點樣式 (使用 record 形狀來分割比分)
+dot.attr('node', shape='record', style='filled', fillcolor='white', fontname='Arial')
+
+team_default =  {'Id':'TeamDefault', 'Name':'輪空', 'WonCount':0, 'Score':[
+        {"Point":0, "Round":0},
+        {"Point":0, "Round":0},
+        {"Point":0, "Round":0},
+        {"Point":0, "Round":0},
+        {"Point":0, "Round":0}
+        ]}
+        
 def pairMatches(level, parent_matches, teams):
     if len(teams) == 1:
         return 
@@ -135,17 +138,15 @@ def showMatches(level, matches):
     #matches[level]    
     for match_index in range(0, len(matches[level])):
         match = matches[level][match_index]
-        id1= match[0]['Id']
         name1 = match[0]['Name']
-        round1 = match[0]['Score'][0]['Round']
-        point1 = match[0]['Score'][0]['Point']
+        round1 = match[0]['Score'][level]['Round']
+        point1 = match[0]['Score'][level]['Point']
         
-        id2= match[1]['Id']
         name2 = match[1]['Name']
-        round2 = match[1]['Score'][0]['Round']
-        point2 = match[1]['Score'][0]['Point']
+        round2 = match[1]['Score'][level]['Round']
+        point2 = match[1]['Score'][level]['Point']
 
-        group_name = str(level) + str(match_index) #+ id1 + id2
+        group_name = str(level) + str(match_index)
         dot.node(group_name, label=f"{{ {{ {name1} | {round1} | {point1} }} | {{ {name2} | {round2} | {point2} }} }}")
         #str(level + 1) , str(int(match_index / 2))
         dot.edge(group_name, str(level + 1) + str(int(match_index / 2)))
